@@ -54,31 +54,6 @@ app.post("/register-new-user", async (req, res) => {
   res.json({ status: "ok" });
 });
 
-app.post("/register-new-user2", async (req, res) => {
-  console.log(req.body);
-  const { name, email, encryptedPassword, userType } = req.body;
-
-  const password = await bcrypt.hash(encryptedPassword, 10);
-  try {
-    const oldUser = await User.findOne({ email });
-    if (oldUser) {
-      return res.json({
-        error: "User already exists with same email",
-      });
-    }
-    const user = await User.create({
-      name,
-      email,
-      password,
-      userType,
-    });
-  } catch (error) {
-    console.log(error, "new user cannot be created");
-    res.json({ status: "error" });
-  }
-  res.json({ status: "ok" });
-});
-
 app.post("/login-user", async (req, res) => {
   const { email, password } = req.body;
   const user = await User.findOne({
@@ -191,6 +166,55 @@ app.post("/add-order", async (req, res) => {
   } catch (error) {
     console.log(error, "new order cannot be created");
     res.json({ status: "error" });
+  }
+  res.json({ status: "ok" });
+});
+
+app.post("/accept-order", async (req, res) => {
+  const { status, orderId, acceptedBy } = req.body;
+  try {
+    Order.updateOne(
+      { _id: orderId },
+      {
+        $set: {
+          acceptedBy,
+          status,
+        },
+      },
+      { overwrite: false, new: true },
+      function (err, res) {
+        console.log(res, err);
+      }
+    );
+
+    User.findOne({ _id: acceptedBy.driverId }).then((data) => {
+      console.log(data.orderAccepted, "oA");
+      var totalOrdersPlaced = new Array();
+
+      if (data.orderAccepted == undefined || data.orderAccepted == "") {
+        totalOrdersPlaced.push(orderId.toString());
+        console.log(totalOrdersPlaced, "y");
+      } else {
+        totalOrdersPlaced = [...data.orderAccepted, orderId.toString()];
+        console.log(totalOrdersPlaced, "yesss");
+      }
+      User.updateOne(
+        {
+          _id: acceptedBy.driverId,
+        },
+        {
+          $set: {
+            orderAccepted: totalOrdersPlaced,
+          },
+        },
+        { overwrite: false, new: true },
+        function (err, res) {
+          console.log(res, err);
+        }
+      );
+    });
+  } catch (error) {
+    res.json({ error: "error" });
   }
   res.json({ status: "ok" });
 });

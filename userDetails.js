@@ -7,7 +7,8 @@ const UserDetailSchema = new mongoose.Schema(
     password: String,
     token: String,
     userType: String,
-    orderPlaced:Array
+    orderPlaced:Array,
+    orderAccepted:Array
   },
   { collection: "UserInfo" }
 );
