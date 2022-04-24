@@ -54,6 +54,31 @@ app.post("/register-new-user", async (req, res) => {
   res.json({ status: "ok" });
 });
 
+app.post("/register-new-user2", async (req, res) => {
+  console.log(req.body);
+  const { name, email, encryptedPassword, userType } = req.body;
+
+  const password = await bcrypt.hash(encryptedPassword, 10);
+  try {
+    const oldUser = await User.findOne({ email });
+    if (oldUser) {
+      return res.json({
+        error: "User already exists with same email",
+      });
+    }
+    const user = await User.create({
+      name,
+      email,
+      password,
+      userType,
+    });
+  } catch (error) {
+    console.log(error, "new user cannot be created");
+    res.json({ status: "error" });
+  }
+  res.json({ status: "ok" });
+});
+
 app.post("/login-user", async (req, res) => {
   const { email, password } = req.body;
   const user = await User.findOne({
