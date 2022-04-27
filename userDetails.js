@@ -7,8 +7,13 @@ const UserDetailSchema = new mongoose.Schema(
     password: String,
     token: String,
     userType: String,
-    orderPlaced:Array,
-    orderAccepted:Array
+    taxiNumber: String,
+    licenseId: String,
+    aadhar: String,
+    accountNumber: String,
+    ifsc: String,
+    orderPlaced: Array,
+    orderAccepted: Array,
   },
   { collection: "UserInfo" }
 );

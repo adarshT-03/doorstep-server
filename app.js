@@ -31,7 +31,17 @@ const User = mongoose.model("UserInfo");
 
 app.post("/register-new-user", async (req, res) => {
   console.log(req.body);
-  const { name, email, encryptedPassword, userType } = req.body;
+  const {
+    name,
+    email,
+    encryptedPassword,
+    userType,
+    ifsc,
+    accountNumber,
+    aadhar,
+    licenseId,
+    taxiNumber,
+  } = req.body;
 
   const password = await bcrypt.hash(encryptedPassword, 10);
   try {
@@ -46,6 +56,11 @@ app.post("/register-new-user", async (req, res) => {
       email,
       password,
       userType,
+      ifsc,
+      accountNumber,
+      aadhar,
+      licenseId,
+      taxiNumber,
     });
   } catch (error) {
     console.log(error, "new user cannot be created");
@@ -122,6 +137,7 @@ app.post("/add-order", async (req, res) => {
     noofitems,
     price,
     placedBy,
+    distance,
   } = req.body;
   try {
     const order = await Order.create({
@@ -133,6 +149,7 @@ app.post("/add-order", async (req, res) => {
       noofitems,
       price,
       placedBy,
+      distance,
     });
 
     console.log(placedBy, "usOrder");
