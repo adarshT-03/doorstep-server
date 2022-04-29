@@ -41,7 +41,9 @@ app.post("/register-new-user", async (req, res) => {
     aadhar,
     licenseId,
     taxiNumber,
+    status,
   } = req.body;
+  console.log(req.body);
 
   const password = await bcrypt.hash(encryptedPassword, 10);
   try {
@@ -52,6 +54,7 @@ app.post("/register-new-user", async (req, res) => {
       });
     }
     const user = await User.create({
+      status,
       name,
       email,
       password,
@@ -62,6 +65,7 @@ app.post("/register-new-user", async (req, res) => {
       licenseId,
       taxiNumber,
     });
+    console.log(user, "uuu");
   } catch (error) {
     console.log(error, "new user cannot be created");
     res.json({ status: "error" });
@@ -118,6 +122,45 @@ app.post("/user-details", async (req, res) => {
       });
   } catch (error) {
     console.log(error);
+    res.json({ status: "error", error: error });
+  }
+});
+
+app.post("/get-user-details", async (req, res) => {
+  const { userType } = req.body;
+  console.log(req.body);
+  try {
+    User.find({ userType: userType }).then((data) => {
+      console.log(data);
+      res.json({ status: "ok", data: data });
+    });
+  } catch (error) {
+    res.json({ status: "error", error: error });
+  }
+});
+app.post("/update-user-details", async (req, res) => {
+  const { id, status } = req.body;
+  console.log(req.body);
+  try {
+    User.findOne({ _id: id }).then((data) => {
+      console.log(data);
+      User.updateOne(
+        {
+          _id: id,
+        },
+        {
+          $set: {
+            status: status,
+          },
+        },
+        { overwrite: false, new: true },
+        function (err, res) {
+          console.log(res, err);
+        }
+      );
+      res.json({ status: "ok", data: "updated" });
+    });
+  } catch (error) {
     res.json({ status: "error", error: error });
   }
 });
@@ -250,14 +293,23 @@ app.post("/get-user-orders", async (req, res) => {
 
 app.post("/get-order-details", async (req, res) => {
   const { status } = req.body;
-
-  Order.find({ status: status })
-    .then((data) => {
-      res.json({ status: "ok", data: data });
-    })
-    .catch((err) => {
-      res.json({ status: "ok", error: err });
-    });
+  if (status == "all") {
+    Order.find({})
+      .then((data) => {
+        res.json({ status: "ok", data: data });
+      })
+      .catch((err) => {
+        res.json({ status: "ok", error: err });
+      });
+  } else {
+    Order.find({ status: status })
+      .then((data) => {
+        res.json({ status: "ok", data: data });
+      })
+      .catch((err) => {
+        res.json({ status: "ok", error: err });
+      });
+  }
 });
 
 app.listen(PORT, () => {

@@ -14,6 +14,7 @@ const UserDetailSchema = new mongoose.Schema(
     ifsc: String,
     orderPlaced: Array,
     orderAccepted: Array,
+    status: { type: Number, default: 0 },
   },
   { collection: "UserInfo" }
 );
